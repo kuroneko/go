@@ -354,8 +354,11 @@ func asmArgs(a *Action, p *load.Package) []any {
 		case "power9":
 			args = append(args, "-D", "GOPPC64_power9")
 			fallthrough
-		default: // This should always be power8.
+		case "power8": // This should always be power8.
 			args = append(args, "-D", "GOPPC64_power8")
+			fallthrough
+		default: // This should always be power7.
+			args = append(args, "-D", "GOPPC64_power7")
 		}
 	}
 

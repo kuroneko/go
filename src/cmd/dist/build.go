@@ -927,8 +927,11 @@ func runInstall(pkg string, ch chan struct{}) {
 		case "power9":
 			asmArgs = append(asmArgs, "-D", "GOPPC64_power9")
 			fallthrough
-		default: // This should always be power8.
+		case "power8":
 			asmArgs = append(asmArgs, "-D", "GOPPC64_power8")
+			fallthrough
+		default: // This should always be at least power7.
+			asmArgs = append(asmArgs, "-D", "GOPPC64_power7")
 		}
 	}
 	if goarch == "riscv64" {

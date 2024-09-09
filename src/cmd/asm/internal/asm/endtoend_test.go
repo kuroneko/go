@@ -470,7 +470,7 @@ func TestLOONG64Encoder(t *testing.T) {
 
 func TestPPC64EndToEnd(t *testing.T) {
 	defer func(old int) { buildcfg.GOPPC64 = old }(buildcfg.GOPPC64)
-	for _, goppc64 := range []int{8, 9, 10} {
+	for _, goppc64 := range []int{7, 8, 9, 10} {
 		t.Logf("GOPPC64=power%d", goppc64)
 		buildcfg.GOPPC64 = goppc64
 		// Some pseudo-ops may assemble differently depending on GOPPC64
