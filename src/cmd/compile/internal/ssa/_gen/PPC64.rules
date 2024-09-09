@@ -813,8 +813,20 @@
 (AtomicCompareAndSwap(32|64) ptr old new_ mem) => (LoweredAtomicCas(32|64) [1] ptr old new_ mem)
 (AtomicCompareAndSwapRel32   ptr old new_ mem) => (LoweredAtomicCas32 [0] ptr old new_ mem)
 
-(AtomicAnd(8|32)  ...) => (LoweredAtomicAnd(8|32)  ...)
-(AtomicOr(8|32)   ...) => (LoweredAtomicOr(8|32)   ...)
+(AtomicAnd32)  ...) => (LoweredAtomicAnd32)  ...)
+(AtomicOr32)   ...) => (LoweredAtomicOr32)   ...)
+
+(AtomicAnd8 ...) && buildcfg.GOPPC64 >= 8 => (LoweredAtomicAnd8  ...)
+(AtomicOr8  ...) && buildcfg.GOPPC64 >= 8 => (LoweredAtomicOr8   ...)
+
+(AtomicAnd8 ptr val mem) =>
+    (LoweredAtomicAnd32 (ANDconst <typ.Uintptr> [^3] ptr)
+        (Com32 <type.Uint32> (SLW <typ.UInt32> (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val))
+            (SLWconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr)))) mem)
+(AtomicOr8 ptr val mem) =>
+	(LoweredAtomicOr32 (ANDconst <typ.Uintptr> [^3] ptr)
+		(SLW <typ.UInt32> (ZeroExt8to32 val)
+			(SLDconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr))) mem)
 
 (Slicemask <t> x) => (SRADconst (NEG <t> x) [63])
 (ANDconst [1] z:(SRADconst [63] x)) && z.Uses == 1  => (SRDconst [63] x)
