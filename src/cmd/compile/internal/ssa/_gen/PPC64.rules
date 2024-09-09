@@ -813,15 +813,15 @@
 (AtomicCompareAndSwap(32|64) ptr old new_ mem) => (LoweredAtomicCas(32|64) [1] ptr old new_ mem)
 (AtomicCompareAndSwapRel32   ptr old new_ mem) => (LoweredAtomicCas32 [0] ptr old new_ mem)
 
-(AtomicAnd32)  ...) => (LoweredAtomicAnd32)  ...)
-(AtomicOr32)   ...) => (LoweredAtomicOr32)   ...)
+(AtomicAnd32  ...) => (LoweredAtomicAnd32  ...)
+(AtomicOr32   ...) => (LoweredAtomicOr32   ...)
 
-(AtomicAnd8 ...) && buildcfg.GOPPC64 >= 8 => (LoweredAtomicAnd8  ...)
-(AtomicOr8  ...) && buildcfg.GOPPC64 >= 8 => (LoweredAtomicOr8   ...)
+(AtomicAnd8 ptr val mem) && buildcfg.GOPPC64 >= 8 => (LoweredAtomicAnd8 ptr val mem)
+(AtomicOr8 ptr val mem) && buildcfg.GOPPC64 >= 8 => (LoweredAtomicOr8 ptr val mem)
 
 (AtomicAnd8 ptr val mem) =>
     (LoweredAtomicAnd32 (ANDconst <typ.Uintptr> [^3] ptr)
-        (Com32 <type.Uint32> (SLW <typ.UInt32> (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val))
+        (Com32 <typ.UInt32> (SLW <typ.UInt32> (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val))
             (SLWconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr)))) mem)
 (AtomicOr8 ptr val mem) =>
 	(LoweredAtomicOr32 (ANDconst <typ.Uintptr> [^3] ptr)
