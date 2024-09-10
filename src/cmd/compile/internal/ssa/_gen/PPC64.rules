@@ -821,12 +821,13 @@
 
 (AtomicAnd8 ptr val mem) =>
     (LoweredAtomicAnd32 (ANDconst <typ.Uintptr> [^3] ptr)
-        (Com32 <typ.UInt32> (SLW <typ.UInt32> (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val))
-            (SLWconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr)))) mem)
+        (Com32 <typ.UInt32> (SLW <typ.UInt32>
+            (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val))
+            (SLDconst <typ.UInt64> [3] (XORconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr))))) mem)
 (AtomicOr8 ptr val mem) =>
 	(LoweredAtomicOr32 (ANDconst <typ.Uintptr> [^3] ptr)
 		(SLW <typ.UInt32> (ZeroExt8to32 val)
-			(SLDconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr))) mem)
+			(SLDconst <typ.UInt64> [3] (XORconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr)))) mem)
 
 (Slicemask <t> x) => (SRADconst (NEG <t> x) [63])
 (ANDconst [1] z:(SRADconst [63] x)) && z.Uses == 1  => (SRDconst [63] x)

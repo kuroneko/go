@@ -899,7 +899,7 @@ func rewriteValuePPC64_OpAtomicAnd8(v *Value) bool {
 		return true
 	}
 	// match: (AtomicAnd8 ptr val mem)
-	// result: (LoweredAtomicAnd32 (ANDconst <typ.Uintptr> [^3] ptr) (Com32 <typ.UInt32> (SLW <typ.UInt32> (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val)) (SLWconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr)))) mem)
+	// result: (LoweredAtomicAnd32 (ANDconst <typ.Uintptr> [^3] ptr) (Com32 <typ.UInt32> (SLW <typ.UInt32> (XORconst <typ.UInt32> [0xff] (ZeroExt8to32 val)) (SLDconst <typ.UInt64> [3] (XORconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr))))) mem)
 	for {
 		ptr := v_0
 		val := v_1
@@ -915,11 +915,14 @@ func rewriteValuePPC64_OpAtomicAnd8(v *Value) bool {
 		v4 := b.NewValue0(v.Pos, OpZeroExt8to32, typ.UInt32)
 		v4.AddArg(val)
 		v3.AddArg(v4)
-		v5 := b.NewValue0(v.Pos, OpPPC64SLWconst, typ.UInt64)
+		v5 := b.NewValue0(v.Pos, OpPPC64SLDconst, typ.UInt64)
 		v5.AuxInt = int64ToAuxInt(3)
-		v6 := b.NewValue0(v.Pos, OpPPC64ANDconst, typ.UInt64)
+		v6 := b.NewValue0(v.Pos, OpPPC64XORconst, typ.UInt64)
 		v6.AuxInt = int64ToAuxInt(3)
-		v6.AddArg(ptr)
+		v7 := b.NewValue0(v.Pos, OpPPC64ANDconst, typ.UInt64)
+		v7.AuxInt = int64ToAuxInt(3)
+		v7.AddArg(ptr)
+		v6.AddArg(v7)
 		v5.AddArg(v6)
 		v2.AddArg2(v3, v5)
 		v1.AddArg(v2)
@@ -1086,7 +1089,7 @@ func rewriteValuePPC64_OpAtomicOr8(v *Value) bool {
 		return true
 	}
 	// match: (AtomicOr8 ptr val mem)
-	// result: (LoweredAtomicOr32 (ANDconst <typ.Uintptr> [^3] ptr) (SLW <typ.UInt32> (ZeroExt8to32 val) (SLDconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr))) mem)
+	// result: (LoweredAtomicOr32 (ANDconst <typ.Uintptr> [^3] ptr) (SLW <typ.UInt32> (ZeroExt8to32 val) (SLDconst <typ.UInt64> [3] (XORconst <typ.UInt64> [3] (ANDconst <typ.UInt64> [3] ptr)))) mem)
 	for {
 		ptr := v_0
 		val := v_1
@@ -1100,9 +1103,12 @@ func rewriteValuePPC64_OpAtomicOr8(v *Value) bool {
 		v2.AddArg(val)
 		v3 := b.NewValue0(v.Pos, OpPPC64SLDconst, typ.UInt64)
 		v3.AuxInt = int64ToAuxInt(3)
-		v4 := b.NewValue0(v.Pos, OpPPC64ANDconst, typ.UInt64)
+		v4 := b.NewValue0(v.Pos, OpPPC64XORconst, typ.UInt64)
 		v4.AuxInt = int64ToAuxInt(3)
-		v4.AddArg(ptr)
+		v5 := b.NewValue0(v.Pos, OpPPC64ANDconst, typ.UInt64)
+		v5.AuxInt = int64ToAuxInt(3)
+		v5.AddArg(ptr)
+		v4.AddArg(v5)
 		v3.AddArg(v4)
 		v1.AddArg2(v2, v3)
 		v.AddArg3(v0, v1, mem)
